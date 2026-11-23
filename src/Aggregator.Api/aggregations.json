@@ -1,0 +1,26 @@
+{
+  "Aggregator": {
+    "Aggregations": [
+      {
+        "Name": "user-dashboard",
+        "Route": "/bff/users/{userId}/dashboard",
+        "Sources": [
+          { "Service": "ServiceA", "Path": "users/{userId}", "Into": "user", "Required": true, "Fields": [ "id", "name", "email" ] },
+          { "Service": "ServiceC", "Path": "profiles/{userId}", "Into": "user", "Fields": [ "avatarUrl", "timezone" ] },
+          { "Service": "ServiceA", "Path": "users/{userId}/orders", "Select": "items", "Into": "orders", "Fields": [ "id=orderId", "total", "status" ] },
+          { "Service": "ServiceC", "Path": "notifications?userId={userId}", "Into": "notifications" }
+        ]
+      },
+      {
+        "Name": "team-overview",
+        "Route": "/bff/teams/{teamId}",
+        "Sources": [
+          { "Service": "ServiceB", "Path": "teams/{teamId}", "Into": "team", "Required": true, "Fields": [ "id=teamId", "name" ] },
+          { "Service": "ServiceA", "Path": "users?teamId={teamId}", "Select": "data", "Into": "members", "Fields": [ "id", "name", "email" ] },
+          { "Service": "ServiceB", "Path": "teams/{teamId}", "Select": "members", "Into": "members", "Fields": [ "id=userId", "name=displayName", "role" ] }
+        ],
+        "DedupeBy": { "members": "id" }
+      }
+    ]
+  }
+}
